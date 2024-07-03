@@ -1,11 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { jwtVerify, jwtDecrypt } from 'jose';
+import { verifyAuth } from './lib/auth';
+
 
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:4200'];
 
-export function middleware(req: { headers: { get: (arg0: string) => any; }; method: string; }) {
-  const origin = req.headers.get('origin');
+const JWT_SECRET = process.env.JWT_SECRET !== undefined ? process.env.JWT_SECRET : '';
+
+export async function middleware(request: NextRequest) {
+  let origin: string;
+  let token;
+  let jwtToken;
+
+  const originHeader = request.headers.get('origin');
+  origin = originHeader !== null ? originHeader : '';
 
   const res = NextResponse.next();
+
+  if (!request.cookies.has('token')) {
+    return NextResponse.redirect('http://localhost:3000');
+  }
+
+  token = request.cookies.get('token')?.value;
+
+  const verifiedToken = token && (await verifyAuth(token).catch((err) => {
+      console.log(err);
+    }))
+
+  if (!verifiedToken){
+    return NextResponse.redirect('http://localhost:3000')
+  }
+  
 
   if (allowedOrigins.includes(origin)) {
     res.headers.append('Access-Control-Allow-Origin', origin);
@@ -14,7 +39,7 @@ export function middleware(req: { headers: { get: (arg0: string) => any; }; meth
     res.headers.append('Access-Control-Allow-Credentials', 'true');
   }
 
-  if (req.method === 'OPTIONS') {
+  if (request.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
       headers: {
@@ -26,7 +51,8 @@ export function middleware(req: { headers: { get: (arg0: string) => any; }; meth
     });
   }
 
-  return res;
+
+    return res;
 }
 
 // specify the path regex to apply the middleware to

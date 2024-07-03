@@ -14,9 +14,18 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import { Link } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
-const pages = ['Body-building', 'Stretching'];
-const settings = ['Account', 'Dashboard', 'Logout'];
+const pages = [
+  { text: 'Body-building', href: '/bodybuilding' },
+  { text: 'Stretching', href: '/stretching' }
+];
+const settings = [
+  { text: 'Account', href: "/account" },
+  { text: 'Dashboard', href: "/account/dashboard" },
+  { text: 'Logout', href: "/logout" }
+];
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
@@ -36,6 +45,8 @@ function ResponsiveAppBar() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const router = useRouter();
 
   return (
     <AppBar position="static">
@@ -90,8 +101,8 @@ function ResponsiveAppBar() {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+                <MenuItem key={page.text} onClick={() => router.push(page.href)}>
+                  <Typography textAlign="center">{page.text}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -118,11 +129,11 @@ function ResponsiveAppBar() {
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
-                key={page}
-                onClick={handleCloseNavMenu}
+                key={page.text}
+                onClick={() => router.push(page.href)}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
-                {page}
+                {page.text}
               </Button>
             ))}
           </Box>
@@ -150,8 +161,8 @@ function ResponsiveAppBar() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+                <MenuItem key={setting.text} onClick={() => router.push(setting.href)}>
+                  <Typography textAlign="center">{setting.text}</Typography>
                 </MenuItem>
               ))}
             </Menu>
